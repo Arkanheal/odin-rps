@@ -1,7 +1,7 @@
 const choiceArray = ["rock", "paper", "scissors"];
 
 const getComputerChoice = () => {
-  return randomChoice = Math.floor(Math.random() * 3)
+  return randomChoice = Math.floor(Math.random() * 3);
 }
 
 /** Let's say
@@ -17,12 +17,12 @@ const playRound = (playerSelection, computerSelection) => {
   // Compare playerSelection and computerSelection
   let choiceComparison = playerSelection - computerSelection;
   if (choiceComparison === 1 || choiceComparison === -2) {
-    return 0;
-  } else if (choiceComparison === 0) {
     return 1;
+  } else if (choiceComparison === 0) {
+    return 0;
   }
 
-  return 2;
+  return -1;
 }
 
 const game = () => {
@@ -32,7 +32,7 @@ const game = () => {
   for (let i = 0; i < 5; ++i) {
     // One round is:
     // 1. Get input from the user
-    let playerInput = prompt(`Rock, Papers, Scissors ? (case insensitive)`)
+    let playerInput = prompt(`Rock, Papers, Scissors ? (case insensitive)`);
     let playerSelection = 0;
 
     // Sanitize use input
@@ -43,7 +43,9 @@ const game = () => {
 
       // Check the input is present in the choiceArray
       if (playerSelection === -1) {
-        playerInput = prompt(`The input must be either "Rock", "Paper", "Scissors". Input again (case insensitive).`)
+        playerInput = prompt(
+          `The input must be either "Rock", "Paper", "Scissors". Input again (case insensitive).`
+        );
       } else {
         keepGoing = false;
       }
@@ -54,26 +56,35 @@ const game = () => {
     // 3. Call playRound to get the result string
     let roundResult = playRound(playerSelection, computerSelection);
     // 4. console.log the result string
-    if (roundResult === 0) {
-      console.log(`Congratulations! Your ${choiceArray[playerSelection]} beats ${choiceArray[computerSelection]}`);
-      ++winCount;
-    } else if (roundResult === 1) {
-      console.log(`It's a tie !!`);
-    } else {
-      console.log(`Oh no! Your ${choiceArray[playerSelection]} got crushed by their ${choiceArray[computerSelection]}`);
-      --winCount;
-    }
+    showResult(
+      `round`,
+      roundResult,
+      toTitleCase(playerInput),
+      toTitleCase(choiceArray[computerSelection])
+    );
+    // 5. Increment the result
+    winCount += roundResult;
   }
   // After all five see who won
   // Computer wins if the counter is > 0
   // Tie if counter == 0
   // Player wins otherwise
-  if (winCount > 0) {
-    console.log(`Congratulations !! You won the Bo5.`);
-  } else if (winCount === 0) {
-    console.log(`It's a tie !!`);
-  } else {
-    console.log(`Oh no !! The computer won.`);
-  }
-  console.log(`Try again`);
+  showResult(`game`, winCount);
+  console.log(`Try again !!`);
 }
+
+const showResult = (context, result, playerInput = null, computerInput = null) => {
+  if (result > 0) {
+    console.log(
+      `Congratulations ! You won the ${context}. ${playerInput ? playerInput + " beats " + computerInput : ""}`
+    );
+  } else if (result === 0) {
+    console.log(`This ${context} is a tie.`);
+  } else {
+    console.log(
+      `Oh no !! The computer won the ${context}! ${playerInput ? computerInput + " beats " + playerInput : ""}`
+    );
+  }
+}
+
+const toTitleCase = s => s[0].toUpperCase() + s.slice(1).toLowerCase();
