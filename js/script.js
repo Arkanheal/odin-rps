@@ -1,20 +1,80 @@
 const choiceArray = ["rock", "paper", "scissors"];
 
-const toTitleCase = s => s[0].toUpperCase() + s.slice(1).toLowerCase();
+let playerWin = 0;
+let computerWin = 0;
 
-const showResult = (context, result, playerInput = null, computerInput = null) => {
-  if (result > 0) {
-    console.log(
-      `Congratulations ! You won the ${context}. ${playerInput ? playerInput + " beats " + computerInput : ""}`
+const launchGame = () => {
+  playerWin = 0;
+  computerWin = 0;
+  gameDiv.style.display = "flex";
+  resultDiv.textContent = "";
+  tryAgain.hidden = true;
+}
+
+const buttonArray = document.querySelectorAll(".choice");
+for (let i = 0; i < buttonArray.length; ++i) {
+  const button = buttonArray[i];
+  button.addEventListener("click", () => {
+    const computerSelection = getComputerChoice();
+    const roundResult = playRound(i, computerSelection);
+    if (roundResult === 1) {
+      playerWin++
+    } else if (roundResult === -1) {
+      computerWin++
+    }
+    showRoundResult(
+      roundResult,
+      toTitleCase(choiceArray[i]),
+      toTitleCase(choiceArray[computerSelection])
     );
-  } else if (result === 0) {
-    console.log(`This ${context} is a tie.`);
+
+    showScore(playerWin, computerWin);
+  });
+}
+
+const gameDiv = document.querySelector(".game");
+gameDiv.addEventListener("click", () => {
+  if (computerWin === 5 || playerWin === 5) {
+    showGameResult(playerWin, computerWin);
+    gameDiv.style.display = "none";
+    document.querySelector(".round-result").textContent = "";
+    document.querySelector(".score").textContent = "";
+
+    tryAgain.hidden = false;
+  }
+});
+
+const showGameResult = (playerWin, computerWin) => {
+  const scoreString = `Final score : ${playerWin} | ${computerWin}`;
+  if (playerWin > computerWin) {
+    resultDiv.textContent = `You won !!
+      ${scoreString}`;
   } else {
-    console.log(
-      `Oh no !! The computer won the ${context}! ${playerInput ? computerInput + " beats " + playerInput : ""}`
-    );
+    resultDiv.textContent = `Computer won !! Better luck next time !
+      ${scoreString}`;
   }
 }
+
+const showScore = (playerScore, computerScore) => {
+  const scoreDiv = document.querySelector(".score");
+  scoreDiv.textContent = `Player: ${playerScore} | Computer: ${computerScore}`;
+}
+
+const showRoundResult = (result, playerInput, computerInput) => {
+  const resultDiv = document.querySelector(`.round-result`);
+  if (result > 0) {
+    resultDiv.textContent =
+      `Congratulations ! You won the round. ${playerInput} beats ${computerInput}`;
+  } else if (result === 0) {
+    resultDiv.textContent =
+      "This round is a tie.";
+  } else {
+    resultDiv.textContent =
+      `Oh no !! The computer won the round! ${computerInput} beats ${playerInput}`;
+  }
+}
+
+const toTitleCase = s => s[0].toUpperCase() + s.slice(1).toLowerCase();
 
 const getComputerChoice = () => {
   return randomChoice = Math.floor(Math.random() * 3);
@@ -31,7 +91,7 @@ const getComputerChoice = () => {
 **/
 const playRound = (playerSelection, computerSelection) => {
   // Compare playerSelection and computerSelection
-  let choiceComparison = playerSelection - computerSelection;
+  const choiceComparison = playerSelection - computerSelection;
   if (choiceComparison === 1 || choiceComparison === -2) {
     return 1;
   } else if (choiceComparison === 0) {
@@ -41,51 +101,6 @@ const playRound = (playerSelection, computerSelection) => {
   return -1;
 }
 
-const game = () => {
-  let winCount = 0;
-
-  for (let i = 0; i < 5; ++i) {
-    // One round is:
-    // 1. Get input from the user
-    let playerInput = prompt(`Rock, Papers, Scissors ? (case insensitive)`);
-    let playerSelection = 0;
-
-    let keepGoing = true;
-    do {
-      // If playerInput is null, he cancelled the prompt.
-      if(!playerInput) {
-        console.log(`Sad to see you leave !! See you soon.`)
-        return;
-      }
-
-      playerSelection = choiceArray.indexOf(playerInput.toLowerCase());
-
-      if (playerSelection === -1) {
-        playerInput = prompt(
-          `The input must be either "Rock", "Paper", "Scissors". Input again (case insensitive).`
-        );
-      } else {
-        keepGoing = false;
-      }
-    } while (keepGoing);
-
-    let computerSelection = getComputerChoice();
-
-    let roundResult = playRound(playerSelection, computerSelection);
-
-    showResult(
-      `round`,
-      roundResult,
-      toTitleCase(playerInput),
-      toTitleCase(choiceArray[computerSelection])
-    );
-
-    winCount += roundResult;
-  }
-  // After all five see who won
-  // Computer wins if the counter is > 0
-  // Tie if counter == 0
-  // Player wins otherwise
-  showResult(`game`, winCount);
-  console.log(`Try again !!`);
-}
+const tryAgain = document.querySelector(".try-again");
+const resultDiv = document.querySelector(".game-result");
+tryAgain.addEventListener("click", launchGame);
